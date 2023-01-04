@@ -1,0 +1,33 @@
+--Create a flower store database
+
+CREATE TABLE flower_store (id INTEGER, name TEXT, color TEXT, stock INTEGER, price INTEGER, aisle INTEGER);
+
+INSERT INTO flower_store VALUES (1, "rose", "red", 12, 3, 1);
+INSERT INTO flower_store VALUES (2, "rose", "pink", 50, 3, 1);
+INSERT INTO flower_store VALUES (3, "rose", "white", 3, 3, 1);
+INSERT INTO flower_store VALUES (4, "sunflower", "yellow", 100, 1, 2);
+INSERT INTO flower_store VALUES (5, "sunflower", "red", 10, 2, 2);
+INSERT INTO flower_store VALUES (6, "sunflower", "orange", 10, 4, 2);
+INSERT INTO flower_store VALUES (7, "tulip", "yellow", 17, 5, 3);
+INSERT INTO flower_store VALUES (8, "tulip", "pink", 12, 5, 3);
+INSERT INTO flower_store VALUES (9, "tulip", "red", 8, 5, 3);
+INSERT INTO flower_store VALUES (10, "mum", "yellow", 15, 7, 4);
+INSERT INTO flower_store VALUES (11, "mum", "red", 15, 6, 4);
+INSERT INTO flower_store VALUES (12, "mum", "orange", 15, 6, 4);
+INSERT INTO flower_store VALUES (13, "mum", "purple", 15, 7, 4);
+INSERT INTO flower_store VALUES (14, "mum", "pink", 15, 7, 4);
+INSERT INTO flower_store VALUES (15, "mum", "white", 15, 5, 4);
+
+--display the database ordered by price
+SELECT * FROM flower_store ORDER BY price;
+
+--what is the total value of all inventory?
+SELECT SUM(stock*price) 
+    AS inventory_total_value 
+    FROM flower_store;
+
+--what is the average price of each color of flower?
+SELECT color, ROUND(AVG(price),2)
+    AS average_flower_price
+    FROM flower_store
+    GROUP BY color;
