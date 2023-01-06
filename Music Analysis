@@ -1,0 +1,223 @@
+/*Create a table of information about some of my favorite musical artists and bands; information about how many songs I've liked by the artist and number of monthly listeners pulled from Spotify*/
+CREATE TABLE artists (id INTEGER PRIMARY KEY,
+    name TEXT,
+    band TEXT,
+    liked_songs INTEGER,
+    spotify_monthly_listeners INTEGER);
+
+INSERT INTO artists VALUES 
+    (1, "Rainbow Kitten Surprise",
+    "yes",
+    1,
+    3700669);
+INSERT INTO artists VALUES
+    (2, "Kishi Bashi",
+    "no",
+    31,
+    819328);
+INSERT INTO artists VALUES
+    (3, "Harry Styles",
+    "no",
+    1,
+    64800291);
+INSERT INTO artists VALUES
+    (4, "Portugal. The Man",
+    "yes",
+    1,
+    5445680);
+INSERT INTO artists VALUES
+    (5, "Grouplove",
+    "yes",
+    4,
+    4896161);
+INSERT INTO artists VALUES
+    (6, "The Lumineers",
+    "yes",
+    21,
+    16035069);
+INSERT INTO artists VALUES
+    (7, "Phoebe Bridgers",
+    "no",
+    2,
+    9671272);
+INSERT INTO artists VALUES
+    (8, "Peach Pit",
+    "yes",
+    2,
+    3003524);
+INSERT INTO artists VALUES
+    (9, "The Backseat Lovers",
+    "yes",
+    1,
+    4146717);
+INSERT INTO artists VALUES
+    (10, "Dayglow",
+    "yes",
+    2,
+    5834215);
+INSERT INTO artists VALUES
+    (11, "Of Monsters and Men",
+    "yes",
+    56,
+    6698205);
+INSERT INTO artists VALUES
+    (12, "The Neighbourhood",
+    "yes",
+    4,
+    32553916);
+INSERT INTO artists VALUES
+    (13, "Hippo Campus",
+    "yes",
+    5,
+    2296964);
+INSERT INTO artists VALUES
+    (14, "Twenty One Pilots",
+    "yes",
+    5,
+    19553394);
+INSERT INTO artists VALUES
+    (15, "Foals",
+    "yes",
+    1,
+    3374962);
+INSERT INTO artists VALUES
+    (16, "Passion Pit",
+    "yes",
+    23,
+    2075283);
+
+/*Show all artists in table*/    
+SELECT * FROM artists;
+
+/*Is there a pattern in the total monthly listeners of the artist on Spotify and how many songs I like by the artist?*/
+SELECT liked_songs, ROUND(AVG(spotify_monthly_listeners), 1) AS average_monthly_listeners
+    FROM artists
+    GROUP BY liked_songs
+    ORDER BY AVG(spotify_monthly_listeners) DESC;
+/*Conclusion: not what I expected - the more liked songs I had seems lower down in average monthly listeners*/
+
+/*Create a table representing 20 songs in a playlist; information about album name and duration pulled from Spotify*/
+CREATE TABLE songs (id INTEGER PRIMARY KEY,
+    title TEXT,
+    artist INTEGER,
+    album TEXT,
+    duration INTEGER);
+    
+INSERT INTO songs VALUES
+    (1, "It's Called: Freefall - Live from Athens Georgia",
+    1,
+    "RKS! Live From Athens Georgia",
+    2*60+45);
+INSERT INTO songs VALUES
+    (2, "Hey Big Star",
+    2,
+    "Sonderlust",
+    3*60+21);
+INSERT INTO songs VALUES
+    (3, "As It Was",
+    3,
+    "As It Was",
+    2*60+47);
+INSERT INTO songs VALUES
+    (4, "What, Me Worry?",
+    4,
+    "What, Me Worry?",
+    2*60+57);
+INSERT INTO songs VALUES
+    (5, "Colours",
+    5,
+    "Never Trust a Happy Song",
+    4*60+18);
+INSERT INTO songs VALUES
+    (6, "REPRISE",
+    6,
+    "BRIGHTSIDE",
+    3*60+28);
+INSERT INTO songs VALUES
+    (7, "Motion Sickness",
+    7,
+    "Stranger in the Alps",
+    3*60+50);
+INSERT INTO songs VALUES
+    (8, "Shampoo Bottles",
+    8,
+    "You and Your Friends",
+    3*60+44);
+INSERT INTO songs VALUES
+    (9, "Kilby Girl",
+    9,
+    "When We Were Friends",
+    4*60+42);
+INSERT INTO songs VALUES
+    (10, "REMINGTON",
+    6,
+    "BRIGHTSIDE",
+    1*60+52);
+INSERT INTO songs VALUES
+    (11, "The Gold - Phoebe Bridgers Version",
+    7,
+    "The Gold (Phoebe Bridgers Version)",
+    3*60+53);
+INSERT INTO songs VALUES
+    (12, "Hot Rod",
+    10,
+    "Fuzzybrain",
+    3*60+24);
+INSERT INTO songs VALUES
+    (13, "Numb Bears - 2011 Iceland Release Version",
+    11,
+    "My Head Is An Animal (10th Anniversary Edition)",
+    2*60+46);
+INSERT INTO songs VALUES
+    (14, "Softcore",
+    12,
+    "Hard To Imagine The Neighbourhood Ever Changing",
+    3*60+26);
+INSERT INTO songs VALUES
+    (15, "Buttercup",
+    13,
+    "Landmark",
+    3*60+47);
+INSERT INTO songs VALUES
+    (16, "Good Day",
+    14,
+    "Scaled and Icy",
+    3*60+24);
+INSERT INTO songs VALUES
+    (17, "Sugar in a Bowl",
+    11,
+    "My Head Is An Animal (10th Anniversary Edition)",
+    2*60+49);
+INSERT INTO songs VALUES
+    (18, "2am",
+    15,
+    "Life Is Yours",
+    3*60+44);
+INSERT INTO songs VALUES
+    (19, "Carried Away",
+    16,
+    "Gossamer",
+    3*60+42);
+INSERT INTO songs VALUES
+    (20, "WHERE WE ARE",
+    6,
+    "BRIGHTSIDE",
+    2*60+53);
+
+/*Display all songs in the playlist*/    
+SELECT * FROM songs;
+
+/*List all songs in the playlist with the names of the artists using a join querie*/
+SELECT songs.title, artists.name AS artist
+    FROM songs
+    LEFT JOIN artists
+    ON songs.artist = artists.id
+    ORDER BY artist;
+
+/*Find average runtime by artist of the songs in the playlist where there are multiple songs in the playlist by the artist*/
+SELECT a.name AS artist_name, AVG(s.duration) AS average_song_length
+    FROM songs AS s
+    LEFT JOIN artists AS a
+    ON s.artist = a.ID
+    GROUP BY a.name
+    HAVING COUNT(*)>1;
