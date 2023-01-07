@@ -1,0 +1,62 @@
+-- Goal: to query a database with multiple tables to answer questions and quantify statistics about customer and order data
+
+--see what information is in the customers table
+SELECT * FROM BIT_DB.customers LIMIT 20;
+
+--see what information is in each monthly sales table
+SELECT * FROM BIT_DB.JanSales LIMIT 20;
+
+--only select customers that actually have order ids
+SELECT * FROM BIT_DB.customers
+WHERE length(order_id) = 6
+AND order_id != 'Order ID';
+
+--1. How many orders were placed in January?
+SELECT COUNT(*) FROM BIT_DB.JanSales 
+WHERE length(orderID) = 6 AND orderID != 'Order ID';
+--Answer: 9681
+
+--2. How many of those orders were for an iPhone?
+SELECT COUNT(*) 
+FROM BIT_DB.JanSales
+WHERE length(orderID) = 6 AND orderID != 'Order ID'
+AND Product LIKE '%iPhone%';
+--Answer: 379
+
+--3.Select the customer account numbers for all the orders that were placed in February.
+SELECT DISTINCT c.acctnum
+FROM BIT_DB.customers AS c
+JOIN BIT_DB.FebSales AS f
+ON c.order_id = f.orderID
+WHERE length(orderID) = 6 AND orderID != 'Order ID';
+--Returns a list of 11,986 account numbers
+
+--4. Which product was the cheapest one sold in January, and what was the price?
+SELECT DISTINCT Product, price
+FROM BIT_DB.JanSales
+WHERE price = 
+    (SELECT MIN(price) FROM BIT_DB.JanSales);
+--Answer: AAA Batteries (4-pack) at 2.99
+
+--5. What is the total revenue for each product sold in January? 
+SELECT Product, ROUND(SUM(Quantity)*price, 2) AS total_revenue
+FROM BIT_DB.JanSales
+GROUP BY Product
+HAVING total_revenue >0;
+--Returns a list of 19 products and the total revenue earned for each product
+
+--6. Which products were sold in February at 548 Lincoln St, Seattle, WA 98101, how many of each were sold, and what was the total revenue?
+SELECT Product, SUM(Quantity) AS total_quantity, ROUND(SUM(Quantity)*price, 2) AS total_revenue
+FROM BIT_DB.FebSales
+WHERE location = '548 Lincoln St, Seattle, WA 98101'
+GROUP BY Product;
+--Answer: 2 packs of AA Batteries (4-pack) for a total of 7.68
+
+--7. How many customers ordered more than 2 products at a time in February, and what was the average amount spent for those customers?
+SELECT COUNT(c.acctnum), ROUND(AVG(f.quantity*f.price), 2)
+FROM BIT_DB.FebSales AS f
+LEFT JOIN BIT_DB.customers AS c
+ON f.orderID = c.order_id
+WHERE f.quantity > 2
+AND length(orderID) = 6 AND orderID != 'Order ID';
+-- Answer: 278 accounts and 13.83
