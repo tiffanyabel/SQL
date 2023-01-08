@@ -1,5 +1,5 @@
---In this project, I used advanced select queries, aggregate functions, and case statements 
-to answer questions about a data set of popular marvel characters
+/*In this project, I used advanced select queries, aggregate functions, and case statements 
+to answer questions about a data set of popular marvel characters*/
 
 --Data set from: https://gist.github.com/pamelafox/585364b62390ea720858
 CREATE TABLE marvels (ID INTEGER PRIMARY KEY,
