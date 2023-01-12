@@ -1,0 +1,222 @@
+/*For this project I downloaded Spotify data on the top 50 songs of 2021 from Kaggle, created a table to insert data into, 
+and performed analytics on the data using SQL*/
+
+--Source: https://www.kaggle.com/datasets/equinxx/spotify-top-50-songs-in-2021?select=spotify_top50_2021.csv
+
+--Creating the table:
+CREATE TABLE BIT_DB.Spotifydata (
+id integer PRIMARY KEY,
+artist_name varchar NOT NULL,
+track_name varchar NOT NULL,
+track_id varchar NOT NULL,
+popularity integer NOT NULL,
+danceability decimal(4,3) NOT NULL,
+energy decimal(4,3) NOT NULL,
+song_key integer NOT NULL,
+loudness decimal(5,3) NOT NULL,
+song_mode integer NOT NULL,
+speechiness decimal(5,4) NOT NULL,
+acousticness decimal(6,5) NOT NULL,
+instrumentalness text NOT NULL,
+liveness decimal(5,4) NOT NULL,
+valence decimal(4,3) NOT NULL,
+tempo decimal(6,3) NOT NULL,
+duration_ms integer NOT NULL,
+time_signature integer NOT NULL );
+
+--Then I inserted the Spotify data .csv into the table
+--Then I explored the data using SQL:
+
+--Look at all data in the table:
+SELECT * FROM BIT_DB.Spotifydata;
+
+--What is the average danceability?
+SELECT AVG(danceability) 
+FROM BIT_DB.Spotifydata;
+--0.68572
+
+--What is the average danceability by artist? 
+SELECT artist_name, ROUND(AVG(danceability), 3) AS avg_danceability
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name;
+
+-- Who are the top 10 artists based on popularity?
+SELECT artist_name
+FROM BIT_DB.Spotifydata
+ORDER BY popularity DESC
+LIMIT 10;
+
+--What artist released the longest song?
+SELECT artist_name
+FROM BIT_DB.Spotifydata
+WHERE duration_ms = 
+    (SELECT MAX(duration_ms) FROM BIT_DB.Spotifydata);
+--Farruko
+
+--What's the average danceability for the 10 most popular songs?
+SELECT AVG(danceability)
+FROM BIT_DB.Spotifydata
+WHERE id IN
+    (SELECT id FROM BIT_DB.Spotifydata ORDER BY popularity DESC LIMIT 10);
+--0.6643
+    
+--How many songs does each artist have?
+SELECT artist_name, COUNT(*)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+ORDER BY COUNT(*) DESC;
+--Olivia Rodrigo and Doja cat have thye most with 4 songs
+
+--How many artists have more than one popular song?
+SELECT COUNT(DISTINCT artist_name)
+FROM BIT_DB.Spotifydata
+WHERE artist_name IN
+    (SELECT artist_name FROM BIT_DB.Spotifydata GROUP BY artist_name HAVING COUNT(*)>1);
+--10 artists have more than 1 song in the top 50
+
+--Who are these artists with more than one popular song?
+SELECT artist_name, COUNT(*)
+FROM BIT_DB.Spotifydata
+GROUP BY artist_name
+HAVING COUNT(*)>1
+ORDER BY COUNT(*) DESC;
+
+--Is there a relationship between tempo and energy of a song?
+SELECT track_name,
+CASE
+    WHEN tempo > 
+        (SELECT AVG(tempo) FROM BIT_DB.Spotifydata)+20 
+        THEN 'HIGH TEMPO'
+    WHEN tempo > 
+        (SELECT AVG(tempo) FROM BIT_DB.Spotifydata)-20 
+        THEN 'MIDDLE TEMPO'
+    ELSE 'LOW TEMPO'
+    END AS 'tempo rating',
+CASE
+    WHEN energy > 
+        (SELECT AVG(energy) FROM BIT_DB.Spotifydata) 
+        THEN 'Above average energy'
+    ELSE 'Below average energy'
+    END AS 'energy level'
+FROM BIT_DB.Spotifydata
+GROUP BY track_name
+ORDER BY tempo DESC;
+--It is difficult to tell in general looking at the cases song-by-song; see below
+
+----Is there a relationship between tempo and energy of a song?
+SELECT COUNT(*),
+CASE
+    WHEN tempo > 
+        (SELECT AVG(tempo) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH TEMPO'
+    ELSE 'LOW TEMPO'
+    END AS tempo_rating,
+CASE
+    WHEN energy > 
+        (SELECT AVG(energy) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH ENERGY'
+    ELSE 'LOW ENERGY'
+    END AS energy_rating
+FROM BIT_DB.Spotifydata
+GROUP BY tempo_rating, energy_rating;
+/*yes, for 31 songs, the tempo rating matches the energy rating, 
+whereas in 19 cases it differs
+this would indicate a correlation between temp and energy levels*/
+
+--Is there a relationship between tempo and danceability?
+SELECT COUNT(*),
+CASE
+    WHEN tempo > (
+        SELECT AVG(tempo) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH TEMPO'
+    ELSE 'LOW TEMPO'
+    END AS tempo_rating,
+CASE
+    WHEN danceability > 
+        (SELECT AVG(danceability) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH DANCEABILITY'
+    ELSE 'LOW DANCEABILITY'
+    END AS danceability_level
+FROM BIT_DB.Spotifydata
+GROUP BY tempo_rating, danceability_level;
+/*23 songs have a tempo rating matching their danceability,
+and 27 songs have a tempo rating not matching danceability
+so there seems to be little relationship*/
+
+--Is there a relationship between speechiness and liveness?
+SELECT COUNT(*),
+CASE
+    WHEN speechiness >
+        (SELECT AVG(speechiness) FROM BIT_DB.Spotifydata)
+        THEN 'HIGH SPEECHINESS'
+    ELSE 'LOW SPEECHINESS'
+    END AS speechiness_rating,
+CASE
+    WHEN liveness >
+        (SELECT AVG(liveness) FROM BIT_DB.Spotifydata)
+        THEN 'HIGH LIVENESS'
+    ELSE 'LOW LIVENESS'
+    END AS liveness_rating
+FROM BIT_DB.Spotifydata
+GROUP BY speechiness_rating, liveness_rating;
+/*29 songs have matching speechiness and liveness levels
+and 21 songs do not, which does not show much correlation*/
+
+--Is there a relationship between speechiness and instrumentalness?
+SELECT COUNT(*),
+CASE 
+    WHEN speechiness > (
+        SELECT AVG(speechiness) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH SPEECHINESS'
+    ELSE 'LOW SPEECHINESS'
+    END AS speechiness_rating,
+CASE
+    WHEN instrumentalness > 
+        (SELECT AVG(instrumentalness) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH INSTRUMENTALNESS'
+    ELSE 'LOW INSTRUMENTALNESS'
+    END AS instrumentalness_level
+FROM BIT_DB.Spotifydata
+GROUP BY speechiness_rating, instrumentalness_level;
+/*As expected, it seems generally that high speechiness tends to have low instrumentalness
+and vice versa*/
+
+--Which song in the top 50 is most acoustic?
+SELECT track_name, acousticness
+FROM BIT_DB.Spotifydata
+WHERE acousticness = 
+    (SELECT MAX(acousticness) FROM BIT_DB.Spotifydata);
+--Arcade
+    
+--Which song is most likely to be a live recording?
+SELECT track_name, liveness
+FROM BIT_DB.Spotifydata
+WHERE liveness = 
+    (SELECT MAX(liveness) FROM BIT_DB.Spotifydata);
+--Good Days
+
+--Which song is the most instrumental?
+SELECT track_name, instrumentalness
+FROM BIT_DB.Spotifydata
+WHERE instrumentalness = 
+    (SELECT MAX(instrumentalness) FROM BIT_DB.Spotifydata);
+--Blinding Lights
+    
+--Is there a relationship between valence and danceability?
+SELECT COUNT(*),
+CASE 
+    WHEN valence > (
+        SELECT AVG(valence) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH VALENCE'
+    ELSE 'LOW VALENCE'
+    END AS valence_rating,
+CASE
+    WHEN danceability > 
+        (SELECT AVG(danceability) FROM BIT_DB.Spotifydata) 
+        THEN 'HIGH DANCEABILITY'
+    ELSE 'LOW DANCEABILITY'
+    END AS danceability_level
+FROM BIT_DB.Spotifydata
+GROUP BY valence_rating, danceability_level;
+/*High valence tends to have high danceability but low valence only slightly correlates
+with lower danceability*/
