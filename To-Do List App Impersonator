@@ -1,0 +1,65 @@
+/*In this project, I am writing SQL statements to impersonate an app that stores items in a to-do list
+I created a table, inserted data into the table, and updated and deleted rows of the table*/
+
+--CREATE a table to store the data.
+CREATE TABLE to_do_list 
+    (id INTEGER PRIMARY KEY,
+    item TEXT,
+    est_mins INTEGER,
+    category TEXT,
+    date_posted INTEGER,
+    time_posted TEXT,
+    date_finished INTEGER,
+    time_finished TEXT,
+    completed TEXT);
+
+--INSERT a few example rows in the table.
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (1, "email to ask for jury duty postponement", 20, "personal", 20230113, "PM 04:44","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category, date_posted, time_posted, completed)
+VALUES (2, "unpack suitcase", 5, "personal", 20230116, "PM 05:29", "FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (3, "do laundry", 60, "personal", 20230116, "PM 08:07","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (4, "put away clothes", 15, "personal", 20230116, "PM 10:19","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (5, "get emissions checked", 30, "personal", 20230114, "AM 10:30","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (6, "get car tag renewed", 30, "personal", 20230115, "PM 1:25","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (7, "check email", 5, "work", 20230113, "PM 10:21","FALSE");
+
+INSERT INTO to_do_list (id, item, est_mins, category,  date_posted, time_posted, completed)
+VALUES (8, "add Tuesday meetings to calendar", 10, "work", 20230116, "PM 10:22","FALSE");
+
+--What are all items on the to-do list? How long would completing all items take?
+SELECT * FROM to_do_list;
+SELECT SUM(est_mins) FROM to_do_list;
+
+
+--Use an UPDATE to emulate what happens when you edit data in the app.
+UPDATE to_do_list SET
+    date_finished = 20230116,
+    time_finished = "PM 10:30"
+WHERE id IN (2, 3, 4, 7);
+
+UPDATE to_do_list SET
+    completed = "TRUE",
+    est_mins = 0
+WHERE date_finished IS NOT NULL;
+
+--What does the updated to-do list look like? How long would completing all items take now?
+SELECT * FROM to_do_list;
+SELECT SUM(est_mins) FROM to_do_list;
+
+--Use a DELETE to emulate what happens when you delete data in the app.
+DELETE FROM to_do_list WHERE id = 8;
+
+SELECT * FROM to_do_list;
+SELECT SUM(est_mins) FROM to_do_list;
