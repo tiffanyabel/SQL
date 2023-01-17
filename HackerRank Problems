@@ -1,0 +1,154 @@
+--Below are my submissions on HackerRank for the SQL preparation questions
+--Some excercises are using MySQL and some are using DB2
+
+--Revising the Select Query I
+SELECT * FROM city
+WHERE countrycode = "USA"
+AND population > 100000;
+
+--Revising the Select Query II
+SELECT name FROM city
+WHERE countrycode = "USA"
+AND population > 120000;
+
+--Select All
+SELECT * FROM city;
+
+--Select By ID
+SELECT * FROM city
+WHERE id = 1661;
+
+--Japanese Cities' Attributes
+SELECT * FROM city
+WHERE countrycode = "JPN";
+
+--Japanese Cities' Names
+SELECT name FROM city
+WHERE countrycode = "JPN";
+
+--Weather Observation Station 1 
+SELECT city, state FROM station;
+
+--Weather Observation Station 3 
+SELECT DISTINCT city FROM station
+WHERE id%2 = 0;
+
+--Weather Observation Station 4 
+SELECT COUNT(city) - COUNT(DISTINCT city) FROM station;
+
+--Weather Observation Station 6
+SELECT DISTINCT city FROM station 
+WHERE city LIKE "a%" 
+  OR city LIKE "e%" 
+  OR city LIKE "i%" 
+  OR city LIKE "o%" 
+  OR city LIKE "u%";
+
+--Weather Observation Station 7
+SELECT DISTINCT city FROM station 
+WHERE city like "%a" 
+  OR city LIKE "%e" 
+  OR city LIKE "%i" 
+  OR city LIKE "%o" 
+  OR city LIKE "%u";
+  
+--Weather Observation Station 8 
+SELECT DISTINCT city FROM station 
+WHERE (city LIKE "a%" 
+  OR city LIKE "e%" 
+  OR city LIKE "i%" 
+  OR city LIKE "o%" 
+  OR city LIKE "u%") 
+AND (city LIKE "%a" 
+  OR city LIKE "%e" 
+  OR city LIKE "%i" 
+  OR city LIKE "%o" 
+  OR city LIKE "%u");
+  
+--Weather Observation Station 9 
+SELECT DISTINCT city FROM station 
+WHERE city NOT LIKE "a%" 
+  AND city NOT LIKE "e%" 
+  AND city NOT LIKE "i%" 
+  AND city NOT LIKE "o%" 
+  AND city NOT LIKE "u%";
+
+--Weather Observation Station 10
+SELECT DISTINCT city FROM station 
+WHERE city NOT LIKE "%a" 
+  AND city NOT LIKE "%e" 
+  AND city NOT LIKE "%i" 
+  AND city NOT LIKE "%o" 
+  AND city NOT like "%u";
+
+--Weather Observation Station 11
+SELECT DISTINCT city FROM station 
+WHERE (city NOT LIKE "a%" 
+  AND city NOT LIKE "e%" 
+  AND city NOT LIKE "i%" 
+  AND city NOT LIKE "o%" 
+  AND city NOT LIKE "u%")
+OR (city NOT LIKE "%a" 
+  AND city NOT LIKE "%e" 
+  AND city NOT LIKE "%i" 
+  AND city NOT LIKE "%o" 
+  AND city NOT LIKE "%u");
+
+--Weather Observation Station 12
+SELECT DISTINCT city FROM station 
+WHERE (city NOT LIKE "a%" 
+  AND city NOT LIKE "e%" 
+  AND city NOT LIKE "i%" 
+  AND city NOT LIKE "o%" 
+  AND city NOT LIKE "u%")
+AND (city NOT LIKE "%a" 
+  AND city NOT LIKE "%e" 
+  AND city NOT LIKE "%i" 
+  AND city NOT LIKE "%o" 
+  AND city NOT LIKE "%u");
+  
+--Employee Names 
+SELECT name FROM Employee ORDER BY name;
+
+--Employee Salaries
+SELECT name FROM Employee 
+WHERE salary > 2000 AND months <10 O
+RDER BY employee_id ASC;
+
+--Revising Aggregations - The Count Function
+SELECT COUNT(*) FROM CITY 
+WHERE POPULATION > 100000;
+
+--Revising Aggregations - The Sum Function
+SELECT SUM(POPULATION) FROM CITY 
+WHERE DISTRICT = 'California';
+
+--Revising Aggregations - Averages
+SELECT AVG(population) FROM city 
+WHERE district = 'California';
+
+--Average Population
+SELECT round(avg(population)) FROM city;
+
+--Japan Population
+SELECT SUM(population) FROM city 
+WHERE countrycode = 'JPN';
+
+--Population Density Difference
+SELECT max(population)-min(population) 
+FROM city;
+
+--Type of Triangle
+SELECT CASE
+    WHEN A=B and B=C 
+        THEN 'Equilateral'
+    WHEN (A=B OR B=C OR A=C) 
+        AND (A+B>C AND A+C>B AND B+C>A)
+        THEN 'Isosceles'
+    WHEN (A<>B AND B<>C AND A<>C)
+        AND (A+B>C AND A+C>B AND B+C>A)
+        THEN 'Scalene'
+    ELSE 'Not A Triangle'
+    END
+FROM TRIANGLES;
+
