@@ -220,3 +220,14 @@ FROM BIT_DB.Spotifydata
 GROUP BY valence_rating, danceability_level;
 /*High valence tends to have high danceability but low valence only slightly correlates
 with lower danceability*/
+
+/*Calculate the average popularity for the artists in the Spotify data table. 
+Then, for every artist with an average popularity of 90 or above, 
+show their name, their average popularity, and label them as a “Top Star”*/
+WITH popularity_average_CTE AS 
+    (SELECT artist_name, AVG(popularity) AS avg_popularity
+    FROM Spotifydata
+    GROUP BY artist_name)
+SELECT artist_name, avg_popularity, 'Top Star' AS label
+FROM popularity_average_CTE
+WHERE avg_popularity >= 90;
