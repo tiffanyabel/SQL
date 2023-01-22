@@ -1,0 +1,218 @@
+/*In this project, I am querying a database representing a digital media store, with 11 tables representing artists, playlists, tracks, albums,
+invoices, and customers*/
+
+--Show Customers (their full names, customer ID, and country) who are not in the US.
+SELECT FirstName, LastName, Customerid, Country 
+FROM chinook.customers
+WHERE Country <> 'USA';
+
+--Show only the Customers from Brazil.
+SELECT FirstName, LastName, Customerid, Country
+FROM chinook.customers
+WHERE Country = 'Brazil';
+
+/*Find the Invoices of customers who are from Brazil. 
+The resulting table should show the customer's full name, 
+Invoice ID, Date of the invoice, and billing country.*/
+SELECT c.FirstName, c.LastName, i.Invoiceid, i.InvoiceDate, i.BillingCountry
+FROM chinook.invoices AS i
+LEFT JOIN chinook.customers AS c
+ON i.Customerid = c.Customerid
+WHERE c.Country = 'Brazil';
+
+--Show the Employees who are Sales Agents.
+SELECT * 
+FROM chinook.employees
+WHERE Title LIKE '%Sales%Agent%';
+
+--Find a unique/distinct list of billing countries from the Invoice table.
+SELECT DISTINCT BillingCountry
+FROM chinook.invoices
+ORDER BY BillingCountry;
+
+/*Provide a query that shows the invoices associated with each sales agent. 
+The resulting table should include the Sales Agent's full name.*/
+SELECT i.Invoiceid, e.FirstName, e.LastName
+FROM chinook.invoices AS i
+LEFT JOIN chinook.customers AS c
+ON i.Customerid = c.Customerid
+LEFT JOIN chinook.employees AS e
+ON c.SupportRepid = e.Employeeid
+WHERE e.Title LIKE '%Sales%Agent%';
+
+--Show the Invoice Total, Customer name, Country, and Sales Agent name for all invoices and customers.
+SELECT i.Total, c.FirstName, c.LastName, c.Country, e.FirstName, e.LastName
+FROM chinook.invoices AS i
+LEFT JOIN chinook.customers AS c
+ON i.Customerid = c.Customerid
+LEFT JOIN chinook.employees AS e
+ON c.SupportRepid = e.Employeeid
+WHERE e.Title LIKE '%Sales%Agent%';
+
+--How many Invoices were there in 2009?
+SELECT COUNT(*)
+FROM chinook.invoices
+WHERE InvoiceDate LIKE '2009%';
+
+--What are the total sales for 2009?
+SELECT ROUND(SUM(Total), 2)
+FROM chinook.invoices
+WHERE InvoiceDate LIKE '2009%';
+
+--Write a query that includes the purchased track name with each invoice line ID.
+SELECT t.Name, i.InvoiceLineId
+FROM chinook.invoice_items AS i
+LEFT JOIN chinook.tracks AS t
+ON i.TrackId = t.TrackId;
+
+--Write a query that includes the purchased track name AND artist name with each invoice line ID.
+SELECT t.Name AS 'Track Name', ar.Name AS 'Artist Name', i.InvoiceLineId
+FROM chinook.invoice_items AS i
+LEFT JOIN chinook.tracks AS t
+ON i.TrackId = t.TrackId
+LEFT JOIN chinook.albums AS al
+ON t.AlbumId = al.AlbumId
+LEFT JOIN chinook.artists AS ar
+ON al.ArtistId = ar.ArtistId;
+
+--Provide a query that shows all the Tracks, and include the Album name, Media type, and Genre.
+SELECT t.Name AS 'Track', a.Title AS 'Album', m.Name AS 'Media Type', g.Name AS 'Genre'
+FROM chinook.tracks AS t
+LEFT JOIN chinook.albums AS a
+ON t.AlbumId = a.AlbumId
+LEFT JOIN chinook.media_types AS m
+ON t.MediaTypeId = m.MediaTypeId
+LEFT JOIN chinook.genres AS g
+ON t.GenreId = g.GenreId;
+
+--Show the total sales made by each sales agent.
+SELECT e.FirstName, e.LastName, ROUND(SUM(i.Total), 2) AS 'Total Sales'
+FROM chinook.invoices AS i
+LEFT JOIN chinook.customers AS c
+ON i.CustomerId = c. CustomerId
+LEFT JOIN chinook.employees AS e
+ON c.SupportRepId = e.EmployeeId
+GROUP BY e.employeeId;
+
+--Which sales agent made the most dollars in sales in 2009?
+SELECT e.FirstName, e.LastName, ROUND(SUM(i.Total), 2) AS 'Total Sales'
+FROM chinook.invoices AS i
+LEFT JOIN chinook.customers AS c
+ON i.CustomerId = c. CustomerId
+LEFT JOIN chinook.employees AS e
+ON c.SupportRepId = e.EmployeeId
+WHERE i.InvoiceDate LIKE '2009%'
+GROUP BY e.EmployeeId
+ORDER BY SUM(i.Total) DESC
+LIMIT 1;
+
+--
+--Show the total sales by artist.
+SELECT ar.Name, ROUND(SUM(ii.Quantity)*ii.UnitPrice, 2) AS total_sales
+FROM chinook.invoice_items AS ii
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackId
+LEFT JOIN chinook.albums AS al
+ON t.AlbumId = al.AlbumId
+LEFT JOIN chinook.artists AS ar
+ON al.ArtistId = ar.ArtistId
+GROUP BY ar.ArtistId;
+
+--Who are the top 10 selling artists?
+SELECT ar.Name, ROUND(SUM(ii.Quantity)*ii.UnitPrice, 2) AS total_sales
+FROM chinook.invoice_items AS ii
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackId
+LEFT JOIN chinook.albums AS al
+ON t.AlbumId = al.AlbumId
+LEFT JOIN chinook.artists AS ar
+ON al.ArtistId = ar.ArtistId
+GROUP BY ar.ArtistId
+ORDER BY total_sales DESC
+LIMIT 10;
+
+--Show all playlist titles, with the number of tracks in each playlist
+SELECT p.Name, COUNT(t.TrackId) AS 'Number of Tracks'
+FROM chinook.playlists AS p
+LEFT JOIN chinook.playlist_track AS pt
+ON p.PlaylistId = pt.PlaylistId
+LEFT JOIN chinook.tracks AS t
+ON pt.TrackId = t.TrackId
+GROUP BY p.PlaylistId;
+
+--List all tracks from TV Shows
+SELECT p.Name AS 'Playlist', 
+    t.Name AS 'Track Name',
+    ar.Name AS 'Artist',
+    al.Title AS 'Album'
+FROM chinook.playlists AS p
+LEFT JOIN chinook.playlist_track AS pt
+ON p.PlaylistId = pt.PlaylistId
+LEFT JOIN chinook.tracks AS t
+ON pt.TrackId = t.TrackId
+LEFT JOIN chinook.albums AS al
+ON t.AlbumId = al.AlbumId
+LEFT JOIN chinook.artists AS ar
+ON al.ArtistId = ar.ArtistId
+WHERE p.Name = 'TV Shows'
+GROUP BY t.TrackId;
+
+--Top 10 selling songs (by total sales)
+SELECT t.Name, SUM(ii.Quantity)*ii.UnitPrice AS total_sales
+FROM chinook.invoice_items AS ii
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackId
+GROUP BY ii.TrackId
+ORDER BY total_sales DESC
+LIMIT 10;
+
+--Which customer spent the most?
+SELECT c.FirstName, c.LastName, SUM(i.Total) AS total_sales
+FROM chinook.customers AS c
+LEFT JOIN chinook.invoices AS i
+ON c.CustomerId = i.CustomerId
+GROUP BY c.CustomerId
+ORDER BY total_sales DESC
+LIMIT 1;
+
+--What all tracks did the top customer buy? (6)
+SELECT t.Name
+FROM chinook.invoices AS i
+LEFT JOIN chinook.invoice_items AS ii
+ON i.InvoiceId = ii.InvoiceId
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackID
+WHERE i.CustomerId IN 
+    (SELECT c.CustomerId
+    FROM chinook.customers AS c
+    LEFT JOIN chinook.invoices AS i
+    ON c.CustomerId = i.CustomerId
+    GROUP BY c.CustomerId
+    ORDER BY SUM(i.Total) DESC
+    LIMIT 1);
+
+--Show the total sales by genre.
+SELECT g.Name AS genre, SUM(ii.Quantity)*ii.UnitPrice AS total_sales
+FROM chinook.invoice_items AS ii
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackId
+LEFT JOIN chinook.genres AS g
+ON t.GenreId = g.GenreId
+GROUP BY g.GenreId;
+
+--What is the top selling genre?
+SELECT g.Name AS genre, SUM(ii.Quantity)*ii.UnitPrice AS total_sales
+FROM chinook.invoice_items AS ii
+LEFT JOIN chinook.tracks AS t
+ON ii.TrackId = t.TrackId
+LEFT JOIN chinook.genres AS g
+ON t.GenreId = g.GenreId
+GROUP BY g.GenreId
+ORDER BY total_sales DESC
+LIMIT 1;
+
+--Show price of each song
+SELECT Name, UnitPrice
+FROM chinook.tracks
+GROUP BY TrackId
+ORDER BY UnitPrice DESC;
